@@ -1,0 +1,4 @@
+Flask
+python-dotenv
+PyPDF2
+openai

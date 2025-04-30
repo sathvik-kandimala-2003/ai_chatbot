@@ -1,0 +1,4 @@
+The uploads directory is intended to store uploaded PDF files and does not require any specific content. Therefore, the contents of the file will be empty. 
+
+uploads/:
+# This directory is intended to store uploaded PDF files.

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document QA Chatbot</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Upload Document and Ask Questions</h1>
+    <input type="file" id="pdfFile" />
+    <button onclick="uploadFile()">Upload</button>
+    <textarea id="question" placeholder="Type your question..."></textarea>
+    <button onclick="askQuestion()">Ask</button>
+
+    <p><strong>Answer:</strong> <span id="answer"></span></p>
+    <script>
+        let context = "";
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('pdfFile');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            const response = await fetch('/upload', { method: 'POST', body: formData });
+            const data = await response.json();
+            context = data.text;
+            alert('File uploaded and content extracted successfully!');
+        }
+
+        async function askQuestion() {
+            
+            const question = document.getElementById('question').value;
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ context, question })
+            });
+            const data = await response.json();
+            document.getElementById('answer').innerText = data.answer;
+        }
+    </script>
+</body>
+</html>
