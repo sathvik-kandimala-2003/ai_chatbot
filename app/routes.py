@@ -1,18 +1,26 @@
-# Defines Flask routes for file upload (/upload) and question answering (/ask).
+# Defines Flask routes for file upload (/upload), question answering (/ask), and serving static files.
 # Handles file saving, text extraction, and API communication.
 
-
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, send_from_directory, jsonify, request
 import os
 
-from .openai_handler import answer_question
 from .pdf_handler import extract_text
+from .openai_handler import answer_question
+from .text_comparator import compare_texts
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory('frontend', 'index.html')  # Corrected path
+
+@main.route('/css/<path:filename>')
+def css(filename):
+    return send_from_directory('frontend/css', filename)  # Corrected path
+
+@main.route('/js/<path:filename>')
+def js(filename):
+    return send_from_directory('frontend/js', filename)  # Corrected path
 
 @main.route('/upload', methods=['POST'])
 def upload():
@@ -38,3 +46,66 @@ def ask():
     question = data['question']
     answer = answer_question(context, question)
     return jsonify({"answer": answer})
+
+@main.route('/compare', methods=['POST'])
+def compare():
+    first_doc = request.files.get('firstDoc')
+    second_doc = request.files.get('secondDoc')
+
+    if not first_doc or not second_doc:
+        return jsonify({"status": "error", "message": "Both documents are required!"})
+
+    first_path = os.path.join('uploads', first_doc.filename)
+    second_path = os.path.join('uploads', second_doc.filename)
+
+    first_doc.save(first_path)
+    second_doc.save(second_path)
+
+    # Extract text from both documents
+    first_text = extract_text(first_path, first_doc.filename.split('.')[-1].lower())
+    second_text = extract_text(second_path, second_doc.filename.split('.')[-1].lower())
+
+    # Compare the documents
+    similarities, differences = compare_texts(first_text, second_text)
+
+    # Separate differences into 1st and 2nd document
+    first_doc_differences = [line for line in differences if line in first_text.splitlines()]
+    second_doc_differences = [line for line in differences if line in second_text.splitlines()]
+
+    return jsonify({
+        "status": "success",
+        "similarities": similarities,
+        "differences": {
+            "firstDoc": first_doc_differences,
+            "secondDoc": second_doc_differences
+        }
+    })
+
+@main.route('/transcribe', methods=['POST'])
+def transcribe_audio():
+    audio_file = request.files.get('audio')
+
+    if not audio_file:
+        return jsonify({"status": "error", "message": "No audio file provided."})
+
+    # Save the audio file temporarily
+    audio_path = os.path.join('uploads', 'temp_audio.webm')
+    audio_file.save(audio_path)
+
+    if not os.path.exists(audio_path):
+        return jsonify({"status": "error", "message": "Audio file not saved correctly."})
+
+    try:
+        # Use Whisper to transcribe the audio
+        import whisper
+        model = whisper.load_model("base")
+        result = model.transcribe(audio_path)
+        transcription = result['text']
+
+        return jsonify({"status": "success", "transcription": transcription})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+    finally:
+        # Clean up the temporary audio file
+        if os.path.exists(audio_path):
+            os.remove(audio_path)

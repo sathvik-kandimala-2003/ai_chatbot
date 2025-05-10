@@ -1,0 +1,225 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the top */
+    min-height: 100vh; /* Allow the body to grow dynamically */
+}
+
+.container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    width: 400px;
+    margin-top: 20px; /* Add some spacing from the top */
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+/* Buttons */
+.custom-button {
+    background: #4caf50; /* Light green */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 10px;
+    transition: all 0.3s ease;
+}
+
+.custom-button:hover {
+    background: #45a049; /* Darker green */
+    transform: scale(1.05);
+}
+
+.upload-btn {
+    background: #2196f3; /* Light blue */
+}
+
+.upload-btn:hover {
+    background: #0b7dda; /* Darker blue */
+}
+
+.ask-btn {
+    background: #ff5722; /* Light orange */
+}
+
+.ask-btn:hover {
+    background: #e64a19; /* Darker orange */
+}
+
+.voice-btn {
+    background: #ff9800; /* Orange color for the voice button */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+.voice-btn:hover {
+    background: #e68900; /* Darker orange on hover */
+}
+
+/* Textarea */
+textarea {
+    width: 100%;
+    height: 100px;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 1rem;
+    margin-top: 20px;
+    resize: none;
+    outline: none;
+    background: #1e1e1e; /* Darker background for textarea */
+    color: #e0e0e0; /* Light text color */
+}
+
+/* QA Section */
+#qa-container {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.qa-item {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.qa-item p {
+    margin: 5px 0;
+}
+
+.qa-item ul {
+    margin: 10px 0;
+    padding-left: 20px;
+    list-style-type: disc;
+    color: #e0e0e0; /* Light text color */
+}
+
+.qa-item li {
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+/* Compare Section */
+.compare-section {
+    margin-top: 30px; /* Increased spacing above the Compare section */
+    text-align: center;
+}
+
+#compare-container {
+    margin-top: 15px; /* Increased spacing between the Compare button and the container */
+    padding: 25px; /* Increased padding inside the container */
+    background: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.compare-upload {
+    margin-bottom: 25px; /* Increased spacing between upload buttons */
+}
+
+.doc-name {
+    margin-top: 10px; /* Increased spacing between the button and the document name */
+    font-size: 1rem; /* Slightly larger font size for better readability */
+    color: #e0e0e0; /* Light text color */
+    font-style: italic;
+    text-align: center; /* Center-align the document name */
+}
+
+.compare-upload-btn {
+    background: #ff5722; /* Light orange */
+    margin-top: 20px; /* Increased spacing above the Compare button */
+}
+
+.compare-upload-btn:hover {
+    background: #e64a19; /* Darker orange */
+}
+
+/* Comparison Results */
+#comparison-results {
+    margin-top: 25px; /* Increased spacing above the comparison results */
+    padding: 20px; /* Increased padding inside the results container */
+    background: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+    border-radius: 10px;
+    color: #e0e0e0; /* Light text color */
+    font-size: 1rem; /* Consistent font size */
+    line-height: 1.6; /* Improved line height for readability */
+}
+
+#comparison-results h3 {
+    font-size: 1.2rem; /* Slightly larger font size for headings */
+    margin-bottom: 10px; /* Add spacing below the headings */
+    color: #ffffff; /* Make headings stand out */
+    text-align: center; /* Center-align the headings */
+    text-transform: uppercase; /* Make headings uppercase for emphasis */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Add a subtle underline */
+    padding-bottom: 5px; /* Add padding below the headings */
+}
+
+#comparison-results ul {
+    margin: 15px 0; /* Add spacing above and below the list */
+    padding-left: 20px; /* Indent the list items */
+    list-style-type: disc; /* Use bullet points for the list */
+}
+
+#comparison-results li {
+    margin-bottom: 10px; /* Add spacing between list items */
+    line-height: 1.5; /* Improve line height for readability */
+}
+
+/* Differences Section */
+.differences-container {
+    display: block; /* Stack the sections vertically */
+    margin-top: 15px;
+}
+
+.doc-differences {
+    margin-bottom: 20px; /* Add spacing between the two document sections */
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.doc-differences h4 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #ffffff;
+    text-align: center;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 5px;
+}
+
+.doc-differences ul {
+    margin: 10px 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.doc-differences li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #e0e0e0;
+}

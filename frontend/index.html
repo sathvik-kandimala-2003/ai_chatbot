@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document QA Chatbot</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Document QA Chatbot</h1>
+        <div class="upload-section">
+            <label for="pdfFile" class="custom-button">Browse Document</label>
+            <input type="file" id="pdfFile" hidden />
+            <button class="custom-button upload-btn" onclick="uploadFile()">Upload</button>
+        </div>
+        <div class="question-section">
+            <textarea id="question" placeholder="Type your question here..."></textarea>
+            <button class="custom-button ask-btn" onclick="askQuestion()">Ask</button>
+            <button class="custom-button voice-btn" onclick="recordVoice()">🎤 Speak</button>
+        </div>
+        <div id="qa-container">
+            <!-- Questions and answers will be dynamically added here -->
+        </div>
+        <div class="compare-section">
+            <button class="custom-button compare-btn" onclick="showCompareSection()">Compare Two Documents</button>
+            <div id="compare-container" style="display: none;">
+                <div class="compare-upload">
+                    <label for="firstDoc" class="custom-button">Upload First Document</label>
+                    <input type="file" id="firstDoc" hidden onchange="showFileName('firstDoc', 'firstDocName')" />
+                    <p id="firstDocName" class="doc-name"></p>
+                </div>
+                <div class="compare-upload">
+                    <label for="secondDoc" class="custom-button">Upload Second Document</label>
+                    <input type="file" id="secondDoc" hidden onchange="showFileName('secondDoc', 'secondDocName')" />
+                    <p id="secondDocName" class="doc-name"></p>
+                </div>
+                <button class="custom-button compare-upload-btn" onclick="compareDocuments()">Compare</button>
+            </div>
+        </div>
+        <div id="comparison-results">
+            <!-- Similarities and differences will be displayed here -->
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
