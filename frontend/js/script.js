@@ -149,3 +149,46 @@ async function recordVoice() {
     alert("Recording... Click OK to stop.");
     setTimeout(() => mediaRecorder.stop(), 5000); // Automatically stop recording after 5 seconds
 }
+
+function redirectToAskAnything() {
+    window.location.href = '/ask-anything';
+}
+
+async function askGeneralQuestion() {
+    const question = document.getElementById('general-question').value;
+    if (!question) {
+        alert("Please enter a question!");
+        return;
+    }
+
+    const response = await fetch('/general-question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question })
+    });
+
+    const data = await response.json();
+    if (data.status === 'success') {
+        addChatMessage('You', question);
+        addChatMessage('Chatbot', data.answer);
+        document.getElementById('general-question').value = ''; // Clear the input
+    } else {
+        alert(`Error: ${data.message}`);
+    }
+}
+
+function addChatMessage(sender, message) {
+    const chatContainer = document.getElementById('chat-container');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('chat-message', sender === 'You' ? 'user' : 'bot');
+
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
+    messageContent.innerText = message;
+
+    messageElement.appendChild(messageContent);
+    chatContainer.appendChild(messageElement);
+
+    // Scroll to the bottom of the chat container
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}

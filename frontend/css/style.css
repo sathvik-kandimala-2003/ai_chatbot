@@ -223,3 +223,106 @@ textarea {
     line-height: 1.5;
     color: #e0e0e0;
 }
+
+/* Ask Anything Section */
+.ask-anything-section {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.ask-anything-btn {
+    background: #4caf50; /* Green button */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.ask-anything-btn:hover {
+    background: #45a049; /* Darker green */
+}
+
+/* Chat Interface */
+#chat-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    height: 400px; /* Fixed height */
+    overflow-y: auto; /* Enable scrolling */
+    color: #e0e0e0;
+    font-family: Arial, sans-serif; /* Clean font */
+    font-size: 1rem;
+    line-height: 1.5; /* Improve readability */
+}
+
+/* Chat Message Styles */
+.chat-message {
+    margin-bottom: 15px; /* Add spacing between messages */
+    display: flex;
+    flex-direction: column;
+}
+
+/* User Message */
+.chat-message.user {
+    align-items: flex-end; /* Align user messages to the right */
+}
+
+.chat-message.user .message-content {
+    background: #4caf50; /* Green background for user messages */
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 70%;
+    text-align: right;
+}
+
+/* Chatbot Message */
+.chat-message.bot {
+    align-items: flex-start; /* Align chatbot messages to the left */
+}
+
+.chat-message.bot .message-content {
+    background: #2196f3; /* Blue background for chatbot messages */
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 70%;
+    text-align: left;
+}
+
+/* Chat Input Section */
+.chat-input {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input textarea {
+    flex: 1;
+    height: 50px;
+    border-radius: 10px;
+    padding: 10px;
+    background: #1e1e1e;
+    color: #e0e0e0;
+    border: none;
+    resize: none;
+}
+
+.chat-input .send-btn {
+    background: #2196f3; /* Blue button */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.chat-input .send-btn:hover {
+    background: #0b7dda; /* Darker blue */
+}

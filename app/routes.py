@@ -7,6 +7,7 @@ import os
 from .pdf_handler import extract_text
 from .openai_handler import answer_question
 from .text_comparator import compare_texts
+from .utils import get_weather_data, get_llm_response, handle_general_question, handle_general_question
 
 main = Blueprint('main', __name__)
 
@@ -109,3 +110,26 @@ def transcribe_audio():
         # Clean up the temporary audio file
         if os.path.exists(audio_path):
             os.remove(audio_path)
+
+last_response = None  # Store the last response globally
+
+@main.route('/general-question', methods=['POST'])
+def general_question():
+    global last_response
+    data = request.get_json()
+    question = data.get('question', '')
+
+    if not question:
+        return jsonify({"status": "error", "message": "No question provided."})
+
+    try:
+        # Use the updated handler for general questions
+        answer = handle_general_question(question, last_response)
+        last_response = answer  # Update the last response
+        return jsonify({"status": "success", "answer": answer})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@main.route('/ask-anything')
+def ask_anything():
+    return send_from_directory('frontend', 'ask_anything.html')
