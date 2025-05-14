@@ -79,3 +79,27 @@ def handle_general_question(question, last_response=None):
     else:
         # Use Gemini API for other questions
         return get_llm_response(question)
+
+def analyze_document_content(text):
+    """
+    Analyze the content of a document for risks, inconsistencies, and areas of improvement.
+    """
+    # Define the prompt for the LLM
+    prompt = f"""
+    You are an AI assistant that analyzes documents for risks, inconsistencies, and areas of improvement.
+    Analyze the following document and provide actionable advice:
+    
+    Document Content:
+    {text}
+    
+    Your response should include:
+    - Identified risks or red flags.
+    - Suggestions for improvement.
+    - Any inconsistencies or missing details.
+    """
+
+    # Call the LLM API
+    response = get_llm_response(prompt)
+
+    # Return the LLM's response
+    return response

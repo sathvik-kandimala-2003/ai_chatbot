@@ -16,6 +16,33 @@
             <textarea id="general-question" placeholder="Type your question here..."></textarea>
             <button class="custom-button send-btn" onclick="askGeneralQuestion()">Send</button>
         </div>
+        <button id="assistant-btn" class="btn btn-primary">Personal Assistant Agent</button>
+
+        <!-- Modal for Personal Assistant -->
+        <div id="assistant-modal" class="modal">
+            <div class="modal-content">
+                <h2>Personal Assistant Agent</h2>
+                <form id="assistant-form">
+                    <label for="task">Task:</label>
+                    <input type="text" id="task" name="task" required>
+                    <label for="time">Reminder Time:</label>
+                    <input type="datetime-local" id="time" name="time" required>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    <button type="submit" class="btn btn-success">Set Reminder</button>
+                </form>
+                <button id="news-btn" class="btn btn-info">Read News</button>
+            </div>
+        </div>
+
+        <div class="document-analysis">
+            <h3>🔍 Analyze Your Document</h3>
+            <form id="document-form">
+                <input type="file" id="document-file" name="file" accept=".pdf,.docx,.pptx" required>
+                <button type="submit" class="btn btn-primary">Analyze Document</button>
+            </form>
+            <div id="analysis-result"></div>
+        </div>
     </div>
     <script src="js/script.js"></script>
 </body>

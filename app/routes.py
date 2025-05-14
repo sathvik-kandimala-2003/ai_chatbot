@@ -3,13 +3,20 @@
 
 from flask import Blueprint, send_from_directory, jsonify, request
 import os
+from apscheduler.schedulers.background import BackgroundScheduler
+import smtplib
+from email.mime.text import MIMEText
+from datetime import datetime
 
 from .pdf_handler import extract_text
 from .openai_handler import answer_question
 from .text_comparator import compare_texts
-from .utils import get_weather_data, get_llm_response, handle_general_question, handle_general_question
+from .utils import get_weather_data, get_llm_response, handle_general_question, perform_duckduckgo_search, analyze_document_content
 
 main = Blueprint('main', __name__)
+
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 @main.route('/')
 def index():
@@ -25,28 +32,53 @@ def js(filename):
 
 @main.route('/upload', methods=['POST'])
 def upload():
-    file = request.files['file']
-    if file:
-        filepath = os.path.join('uploads', file.filename)
-        file.save(filepath)
-        file_extension = file.filename.split('.')[-1].lower()
-        if file_extension in ["pdf", "docx", "pptx"]:
-            try:
-                text = extract_text(filepath, file_extension)
-                return jsonify({"status": "success", "text": text})
-            except Exception as e:
-                return jsonify({"status": "error", "message": str(e)})
-        else:
-            return jsonify({"status": "error", "message": "Unsupported file type"})
-    return jsonify({"status": "error", "message": "No file uploaded"})
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"status": "error", "message": "No file uploaded."})
+
+    file_path = os.path.join('uploads', file.filename)
+    file.save(file_path)
+
+    return jsonify({"status": "success", "file_path": file_path})
 
 @main.route('/ask', methods=['POST'])
 def ask():
+    """
+    Handles user questions about the uploaded document and integrates risk detection.
+    """
     data = request.get_json()
-    context = data['context']
-    question = data['question']
-    answer = answer_question(context, question)
-    return jsonify({"answer": answer})
+    question = data.get('question')
+    file_path = data.get('file_path')  # Path to the uploaded document
+
+    if not question:
+        return jsonify({"status": "error", "message": "No question provided."})
+
+    if not file_path or not os.path.exists(file_path):
+        return jsonify({"status": "error", "message": "No document uploaded or file not found."})
+
+    try:
+        # Extract text from the uploaded document
+        file_extension = file_path.split('.')[-1].lower()
+        text = extract_text(file_path, file_extension)
+
+        # Answer the user's question using the document content
+        context = text
+        answer = answer_question(context, question)
+
+        # Prepare a follow-up prompt for risk detection
+        follow_up_prompt = (
+            "Should I tell you about risks in your resume? "
+            "Click on Yes, and I will provide you with the risk factors. "
+            "If you click No, I recommend checking the risk factors of your resume."
+        )
+
+        return jsonify({
+            "status": "success",
+            "answer": answer,
+            "follow_up_prompt": follow_up_prompt
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 
 @main.route('/compare', methods=['POST'])
 def compare():
@@ -133,3 +165,93 @@ def general_question():
 @main.route('/ask-anything')
 def ask_anything():
     return send_from_directory('frontend', 'ask_anything.html')
+
+@main.route('/set-reminder', methods=['POST'])
+def set_reminder():
+    data = request.get_json()
+    task = data.get('task')
+    reminder_time = data.get('time')
+    email = data.get('email')
+
+    def send_email():
+        sender_email = "ksathvikf@gmail.com"
+        sender_password = "mrmo hagv tbjq jlwu "
+        recipient_email = email
+        subject = "Reminder Notification"
+        body = f"Reminder: {task}"
+
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recipient_email, msg.as_string())
+
+    reminder_datetime = datetime.strptime(reminder_time, "%Y-%m-%dT%H:%M")
+    scheduler.add_job(send_email, 'date', run_date=reminder_datetime)
+
+    return jsonify({"message": "Reminder set successfully!"})
+
+@main.route('/read-news', methods=['GET'])
+def read_news():
+    news = perform_duckduckgo_search("latest news")
+    return jsonify({"articles": [news]})
+
+@main.route('/analyze-document', methods=['POST'])
+def analyze_document():
+    """
+    Analyze uploaded documents for risks, inconsistencies, and areas of improvement.
+    """
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"status": "error", "message": "No file uploaded."})
+
+    # Save the uploaded file
+    file_path = os.path.join('uploads', file.filename)
+    file.save(file_path)
+
+    # Determine the file type
+    file_extension = file.filename.split('.')[-1].lower()
+    if file_extension not in ["pdf", "docx", "pptx"]:
+        return jsonify({"status": "error", "message": "Unsupported file type."})
+
+    try:
+        # Extract text from the document
+        text = extract_text(file_path, file_extension)
+
+        # Analyze the document using the LLM
+        analysis = analyze_document_content(text)
+
+        # Return the analysis results
+        return jsonify({"status": "success", "analysis": analysis})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+    finally:
+        # Clean up the uploaded file
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+@main.route('/detect-risks', methods=['POST'])
+def detect_risks():
+    """
+    Handles risk detection for the uploaded document.
+    """
+    data = request.get_json()
+    file_path = data.get('file_path')  # Path to the uploaded document
+
+    if not file_path or not os.path.exists(file_path):
+        return jsonify({"status": "error", "message": "No document uploaded or file not found."})
+
+    try:
+        # Extract text from the uploaded document
+        file_extension = file_path.split('.')[-1].lower()
+        text = extract_text(file_path, file_extension)
+
+        # Analyze the document for risks
+        analysis = analyze_document_content(text)
+
+        return jsonify({"status": "success", "analysis": analysis})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})

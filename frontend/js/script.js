@@ -1,5 +1,120 @@
 let context = "";
+let uploadedFilePath = null; // Global variable to store the uploaded file path
 
+// File upload functionality
+document.getElementById('upload-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fileInput = document.getElementById('document-file');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("Please upload a file.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            uploadedFilePath = result.file_path; // Save the file path for later use
+            document.getElementById('upload-status').innerText = "File uploaded successfully!";
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        alert("An error occurred while uploading the file.");
+    }
+});
+
+// Question answering functionality
+document.getElementById('question-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const questionInput = document.getElementById('user-question');
+    const question = questionInput.value;
+    if (!question) {
+        alert("Please enter a question.");
+        return;
+    }
+
+    if (!uploadedFilePath) {
+        alert("Please upload a document first.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, file_path: uploadedFilePath }),
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            const qaContainer = document.getElementById('qa-container');
+
+            // Display the answer in a container
+            const answerContainer = document.createElement('div');
+            answerContainer.classList.add('answer-container');
+            answerContainer.innerHTML = `<p><strong>Answer:</strong> ${result.answer}</p>`;
+            qaContainer.appendChild(answerContainer);
+
+            // Add follow-up prompt with Yes/No buttons
+            const followUpContainer = document.createElement('div');
+            followUpContainer.classList.add('follow-up-buttons');
+            followUpContainer.innerHTML = `
+                <p>Should I tell the risk factors of this and give suggestions for making it better?</p>
+                <button id="yes-button" class="btn btn-success">Yes</button>
+                <button id="no-button" class="btn btn-danger">No</button>
+            `;
+            qaContainer.appendChild(followUpContainer);
+
+            // Handle Yes button
+            document.getElementById('yes-button').addEventListener('click', async () => {
+                const riskResponse = await fetch('/detect-risks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ file_path: uploadedFilePath }),
+                });
+
+                const riskResult = await riskResponse.json();
+                if (riskResult.status === 'success') {
+                    const riskContainer = document.createElement('div');
+                    riskContainer.classList.add('risk-container');
+                    riskContainer.innerHTML = `<p><strong>Risks:</strong> ${riskResult.analysis}</p>`;
+                    qaContainer.appendChild(riskContainer);
+                } else {
+                    alert(riskResult.message);
+                }
+            });
+
+            // Handle No button
+            document.getElementById('no-button').addEventListener('click', () => {
+                const noResponseContainer = document.createElement('div');
+                noResponseContainer.classList.add('no-response-container');
+                noResponseContainer.innerHTML = `
+                    <p>It would be good if you check the risk factors of your resume. Click on Yes, and I will provide you with the risk factors.</p>
+                `;
+                qaContainer.appendChild(noResponseContainer);
+            });
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error("Error asking question:", error);
+        alert("An error occurred while processing your question.");
+    }
+});
+
+// Function to upload a file
 async function uploadFile() {
     const fileInput = document.getElementById('pdfFile');
     const formData = new FormData();
@@ -14,6 +129,7 @@ async function uploadFile() {
     }
 }
 
+// Function to ask a question
 async function askQuestion() {
     const question = document.getElementById('question').value;
     if (!context) {
@@ -27,13 +143,14 @@ async function askQuestion() {
     const response = await fetch('/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ context, question })
+        body: JSON.stringify({ context, question }),
     });
     const data = await response.json();
     addQuestionAnswer(question, data.answer || "No answer found.");
     document.getElementById('question').value = ""; // Clear the question input
 }
 
+// Function to add a question-answer pair to the UI
 function addQuestionAnswer(question, answer) {
     const qaContainer = document.getElementById('qa-container');
     const qaItem = document.createElement('div');
@@ -53,10 +170,22 @@ function addQuestionAnswer(question, answer) {
     qaContainer.appendChild(qaItem);
 }
 
-function showCompareSection() {
-    const compareContainer = document.getElementById('compare-container');
-    compareContainer.style.display = 'block';
-}
+// Event listener for setting reminders
+document.getElementById('assistant-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const task = document.getElementById('task').value;
+    const time = document.getElementById('time').value;
+    const email = document.getElementById('email').value;
+
+    const response = await fetch('/set-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task, time, email }),
+    });
+
+    const result = await response.json();
+    alert(result.message);
+});
 
 async function compareDocuments() {
     const firstDoc = document.getElementById('firstDoc').files[0];
@@ -164,7 +293,7 @@ async function askGeneralQuestion() {
     const response = await fetch('/general-question', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question })
+        body: JSON.stringify({ question }),
     });
 
     const data = await response.json();
@@ -192,3 +321,43 @@ function addChatMessage(sender, message) {
     // Scroll to the bottom of the chat container
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
+
+document.getElementById('news-btn').addEventListener('click', async () => {
+    const response = await fetch('/read-news');
+    const news = await response.json();
+    alert(news.articles.join('\n'));
+});
+
+document.getElementById('document-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fileInput = document.getElementById('document-file');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("Please upload a file.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/analyze-document', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            document.getElementById('analysis-result').innerHTML = `
+                <h4>Analysis Results:</h4>
+                <p>${result.analysis}</p>
+            `;
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error("Error analyzing document:", error);
+        alert("An error occurred while analyzing the document.");
+    }
+});
